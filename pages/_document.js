@@ -8,6 +8,7 @@ export default function Document() {
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
         />
+        <link rel="icon" type="image/png" href="/thingo_favicon.png" />
       </Head>
       <body>
         <Main />

@@ -40,3 +40,36 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Hide scrollbar for horizontal carousel */
+.horizontal-carousel {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.horizontal-carousel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+@keyframes floatUpDown {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-30px);
+  }
+}
+
+.background-gradient-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0.5) 80%);
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: floatUpDown 4s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
