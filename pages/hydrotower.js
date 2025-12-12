@@ -1,8 +1,12 @@
 import Head from "next/head";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import { getCardId } from "@/config/systemPrompts";
 
 export default function Hydrotower() {
+  const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [cardSvgs, setCardSvgs] = useState([]);
   const carouselRef = useRef(null);
   const cardsContainerRef = useRef(null);
@@ -208,7 +212,16 @@ export default function Hydrotower() {
           }}
         />
         <div className="background-gradient-circle" />
-        <div style={{ marginBottom: "1.5rem", position: "relative", zIndex: 1 }}>
+        <div 
+          style={{ 
+            marginBottom: "1.5rem", 
+            position: "relative", 
+            zIndex: 1,
+            transform: selectedCardIndex !== null ? "translateY(-100vh)" : "translateY(0)",
+            opacity: selectedCardIndex !== null ? 0 : 1,
+            transition: "transform 0.5s ease-in-out, opacity 0.5s ease-in-out",
+          }}
+        >
           <p
             style={{
               fontFamily: "Pretendard, sans-serif",
@@ -258,18 +271,23 @@ export default function Hydrotower() {
           ref={carouselRef}
           className="horizontal-carousel"
           style={{
-            width: "100%",
-            maxWidth: "100%",
-            overflowX: "auto",
-            overflowY: "visible",
-            paddingTop: "60px",
-            paddingBottom: "1rem",
+            width: selectedCardIndex !== null ? "100vw" : "100%",
+            maxWidth: selectedCardIndex !== null ? "100vw" : "100%",
+            overflowX: selectedCardIndex !== null ? "hidden" : "auto",
+            overflowY: selectedCardIndex !== null ? "visible" : "visible",
+            paddingTop: selectedCardIndex !== null ? "0" : "60px",
+            paddingBottom: selectedCardIndex !== null ? "0" : "1rem",
+            minHeight: selectedCardIndex !== null ? "100vh" : "auto",
+            height: selectedCardIndex !== null ? "100vh" : "auto",
             WebkitOverflowScrolling: "touch",
-            marginTop: "1.5rem",
-            scrollSnapType: "x mandatory",
+            marginTop: selectedCardIndex !== null ? "0" : "1.5rem",
+            scrollSnapType: selectedCardIndex !== null ? "none" : "x mandatory",
             scrollBehavior: "smooth",
-            position: "relative",
-            zIndex: 1,
+            position: selectedCardIndex !== null ? "fixed" : "relative",
+            top: selectedCardIndex !== null ? "0" : "auto",
+            left: selectedCardIndex !== null ? "0" : "auto",
+            zIndex: selectedCardIndex !== null ? 100 : 1,
+            transition: "padding-bottom 0.5s ease-in-out, padding-top 0.5s ease-in-out, min-height 0.5s ease-in-out, height 0.5s ease-in-out, width 0.5s ease-in-out, max-width 0.5s ease-in-out, margin-top 0.5s ease-in-out",
           }}
         >
           <div
@@ -277,26 +295,52 @@ export default function Hydrotower() {
             style={{
               display: "flex",
               gap: "calc(300px * 155 / 278 * 0.4)",
-              paddingLeft: "1rem",
-              paddingRight: "1rem",
+              paddingLeft: selectedCardIndex !== null ? "0" : "1rem",
+              paddingRight: selectedCardIndex !== null ? "0" : "1rem",
               minWidth: "fit-content",
+              justifyContent: selectedCardIndex !== null ? "center" : "flex-start",
+              alignItems: selectedCardIndex !== null ? "center" : "flex-start",
+              width: selectedCardIndex !== null ? "100%" : "auto",
+              height: selectedCardIndex !== null ? "100%" : "auto",
+              position: selectedCardIndex !== null ? "relative" : "static",
+              transition: "justify-content 0.5s ease-in-out, align-items 0.5s ease-in-out, padding-left 0.5s ease-in-out, padding-right 0.5s ease-in-out, width 0.5s ease-in-out, height 0.5s ease-in-out",
             }}
           >
-            {[1, 2, 3, 4].map((item, index) => (
+            {[1, 2, 3, 4].map((item, index) => {
+              const isSelected = selectedCardIndex === index;
+              const isLeft = selectedCardIndex !== null && index < selectedCardIndex;
+              const isRight = selectedCardIndex !== null && index > selectedCardIndex;
+              
+              return (
               <div
                 key={item}
+                onClick={() => setSelectedCardIndex(index)}
                 style={{
                   width: "auto",
-                  height: "300px",
+                  height: isSelected ? "500px" : "300px",
                   borderRadius: "12px",
                   flexShrink: 0,
-                  position: "relative",
+                  position: isSelected ? "fixed" : "relative",
+                  top: isSelected ? "40vh" : "auto",
+                  left: isSelected ? "50vw" : "auto",
                   overflow: "visible",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   scrollSnapAlign: "center",
                   scrollSnapStop: "always",
+                  cursor: "pointer",
+                  transform: isSelected 
+                    ? "translate(-50%, -50%) scale(1.01)" 
+                    : isLeft 
+                      ? "translateX(-100vw)" 
+                      : isRight 
+                        ? "translateX(100vw)" 
+                        : "scale(1) translateX(0)",
+                  transformOrigin: "center center",
+                  opacity: isSelected || (selectedCardIndex === null) ? 1 : 0,
+                  transition: "transform 0.5s ease-in-out, opacity 0.5s ease-in-out, height 0.5s ease-in-out",
+                  zIndex: isSelected ? 100 : 1,
                 }}
               >
                 {/* Speech Bubble */}
@@ -305,8 +349,8 @@ export default function Hydrotower() {
                     position: "absolute",
                     top: "-45px",
                     left: "50%",
-                    transform: index === activeIndex ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(-10px)",
-                    opacity: index === activeIndex ? 1 : 0,
+                    transform: (selectedCardIndex === null && index === activeIndex) ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(-10px)",
+                    opacity: (selectedCardIndex === null && index === activeIndex) ? 1 : 0,
                     transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
                     pointerEvents: "none",
                     zIndex: 10,
@@ -365,8 +409,8 @@ export default function Hydrotower() {
                     position: "absolute",
                     bottom: "10px",
                     left: "50%",
-                    transform: index === activeIndex ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(10px)",
-                    opacity: index === activeIndex ? 1 : 0,
+                    transform: (selectedCardIndex === null && index === activeIndex) ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(10px)",
+                    opacity: (selectedCardIndex === null && index === activeIndex) ? 1 : 0,
                     transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
                     background: "#fff",
                     borderRadius: "12px",
@@ -387,37 +431,214 @@ export default function Hydrotower() {
                   </span>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
         
         {/* Indicator Dots */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "0.5rem",
-            marginTop: "0.75rem",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          {[1, 2, 3, 4].map((item, index) => (
-            <div
-              key={item}
+        {selectedCardIndex === null && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "0.5rem",
+              marginTop: "0.75rem",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            {[1, 2, 3, 4].map((item, index) => (
+              <div
+                key={item}
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: "#fff",
+                  opacity: index === activeIndex ? 1 : 0.3,
+                  transition: "opacity 0.3s ease",
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* History Carousel */}
+        {selectedCardIndex !== null && (
+          <div
+            className="historyCarousel"
+            style={{
+              position: "fixed",
+              bottom: "calc(2rem + 120px + 1rem)",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "calc(100% - 2rem)",
+              maxWidth: "500px",
+              zIndex: 180,
+              animation: "fadeInUp 0.5s ease-in-out",
+            }}
+          >
+            <p
               style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                backgroundColor: "#fff",
-                opacity: index === activeIndex ? 1 : 0.3,
-                transition: "opacity 0.3s ease",
+                fontFamily: "Pretendard, sans-serif",
+                fontSize: "10pt",
+                fontWeight: 500,
+                color: "#373737",
+                margin: 0,
+                marginBottom: "0.75rem",
               }}
-            />
-          ))}
-        </div>
+            >
+              지금까지 지나온 여정이에요
+            </p>
+            <div
+              className="horizontal-carousel"
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                overflowX: "auto",
+                overflowY: "hidden",
+                paddingBottom: "0.5rem",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
+              {[1, 2, 3, 4, 5].map((item) => (
+                <div
+                  key={item}
+                  style={{
+                    flexShrink: 0,
+                    width: "120px",
+                    height: "90px",
+                    borderRadius: "12px",
+                    backgroundColor: "#f0f0f0",
+                    backgroundImage: `url('/placeholder-${item}.jpg')`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* White Gradient Overlay */}
+        {selectedCardIndex !== null && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "calc(2rem + 120px + 90px + 1rem + 100px)",
+              background: "linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #FFF 12.5%)",
+              zIndex: 150,
+              opacity: selectedCardIndex !== null ? 1 : 0,
+              transition: "opacity 0.5s ease-in-out",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+
+        {/* Action Buttons */}
+        {selectedCardIndex !== null && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: "2rem",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+              width: "86%",
+              maxWidth: "500px",
+              zIndex: 200,
+              animation: "fadeInUp 0.5s ease-in-out",
+              alignItems: "center",
+            }}
+          >
+            <button
+              onClick={() => {
+                if (selectedCardIndex !== null) {
+                  const cardId = getCardId("hydrotower", selectedCardIndex);
+                  router.push(`/chat/${cardId}`);
+                }
+              }}
+              style={{
+                padding: "14px 0",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "14px",
+                background: "linear-gradient(91deg, #C4F434 -2.42%, #D8F69D 50.99%, #C4F434 104.41%)",
+                border: "none",
+                cursor: "pointer",
+                width: "100%",
+                display: "flex",
+              }}
+            >
+              <span
+                style={{
+                  textAlign: "center",
+                  fontFamily: "Pretendard, sans-serif",
+                  fontSize: "12pt",
+                  fontStyle: "normal",
+                  fontWeight: 600,
+                  lineHeight: "130%",
+                  letterSpacing: "-0.4px",
+                  color: "#000",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                대화하기
+              </span>
+            </button>
+            <button
+              onClick={() => setSelectedCardIndex(null)}
+              style={{
+                padding: "14px 0",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "14px",
+                background: "#E3E4E1",
+                border: "none",
+                cursor: "pointer",
+                width: "100%",
+                display: "flex",
+              }}
+            >
+              <span
+                style={{
+                  textAlign: "center",
+                  fontFamily: "Pretendard, sans-serif",
+                  fontSize: "12pt",
+                  fontStyle: "normal",
+                  fontWeight: 600,
+                  lineHeight: "130%",
+                  letterSpacing: "-0.4px",
+                  color: "#373737",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                뒤로가기
+              </span>
+            </button>
+          </div>
+        )}
       </div>
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+        }
+      `}</style>
     </>
   );
 }
