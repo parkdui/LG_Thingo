@@ -90,8 +90,13 @@ export default function Xboom() {
     if (!carousel || !cardsContainer) return;
 
     let scrollTimeout;
+    let isScrolling = false;
+    let touchStartX = 0;
+    let touchEndX = 0;
 
     const snapToNearestCard = () => {
+      if (isScrolling) return;
+      
       const scrollLeft = carousel.scrollLeft;
       const containerWidth = carousel.clientWidth;
       const cards = cardsContainer.children;
@@ -119,17 +124,29 @@ export default function Xboom() {
       const targetLeft = targetCard.offsetLeft;
       const targetWidth = targetCard.offsetWidth;
       const targetCenter = targetLeft + targetWidth / 2;
-      const scrollTo = targetCenter - containerWidth / 2;
+      let scrollTo = targetCenter - containerWidth / 2;
       
+      // 스크롤 범위 제한 (양쪽 끝 카드도 중앙에 올 수 있도록)
+      const maxScroll = carousel.scrollWidth - containerWidth;
+      scrollTo = Math.max(0, Math.min(scrollTo, maxScroll));
+      
+      isScrolling = true;
       carousel.scrollTo({
         left: scrollTo,
         behavior: 'smooth'
       });
       
       setActiveIndex(closestIndex);
+      
+      // 스크롤 완료 후 플래그 해제
+      setTimeout(() => {
+        isScrolling = false;
+      }, 300);
     };
 
     const handleScroll = () => {
+      if (isScrolling) return;
+      
       const scrollLeft = carousel.scrollLeft;
       const containerWidth = carousel.clientWidth;
       const cards = cardsContainer.children;
@@ -162,11 +179,32 @@ export default function Xboom() {
       }, 150);
     };
 
+    // 터치 이벤트 처리 (모바일 최적화)
+    const handleTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      
+      // 스와이프가 충분히 크면 스냅
+      if (Math.abs(diff) > 30) {
+        setTimeout(() => {
+          snapToNearestCard();
+        }, 100);
+      }
+    };
+
     carousel.addEventListener("scroll", handleScroll);
+    carousel.addEventListener("touchstart", handleTouchStart, { passive: true });
+    carousel.addEventListener("touchend", handleTouchEnd, { passive: true });
     handleScroll(); // 초기값 설정
 
     return () => {
       carousel.removeEventListener("scroll", handleScroll);
+      carousel.removeEventListener("touchstart", handleTouchStart);
+      carousel.removeEventListener("touchend", handleTouchEnd);
       clearTimeout(scrollTimeout);
     };
   }, []);
@@ -298,8 +336,8 @@ export default function Xboom() {
             style={{
               display: "flex",
               gap: "calc(300px * 155 / 278 * 0.4)",
-              paddingLeft: selectedCardIndex !== null ? "0" : "1rem",
-              paddingRight: selectedCardIndex !== null ? "0" : "1rem",
+              paddingLeft: selectedCardIndex !== null ? "0" : "calc(50vw - 150px)",
+              paddingRight: selectedCardIndex !== null ? "0" : "calc(50vw - 150px)",
               minWidth: "fit-content",
               justifyContent: selectedCardIndex !== null ? "center" : "flex-start",
               alignItems: selectedCardIndex !== null ? "center" : "flex-start",

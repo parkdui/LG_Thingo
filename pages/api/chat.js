@@ -15,7 +15,11 @@ export default async function handler(req, res) {
   // OpenAI API 키 확인
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "OpenAI API key not configured" });
+    console.error("OpenAI API key not found in environment variables");
+    return res.status(500).json({ 
+      error: "OpenAI API key not configured",
+      details: "Please check your .env file contains OPENAI_API_KEY"
+    });
   }
 
   try {
@@ -37,7 +41,7 @@ export default async function handler(req, res) {
 
     // OpenAI API 호출
     const completion = await openai.chat.completions.create({
-      model: "gpt-5-nano",
+      model: "gpt-4o-mini",
       messages: chatMessages,
       temperature: 0.7,
       max_tokens: 500,
@@ -56,4 +60,7 @@ export default async function handler(req, res) {
     });
   }
 }
+
+
+
 
