@@ -67,25 +67,6 @@ export default function Gram() {
     return getImagesForNickname(nickname, productGroup).length;
   };
 
-  // nickname에 해당하는 이미지 파일 경로 배열 반환
-  const getImagesForNickname = (nickname, productGroup) => {
-    const imageMap = {
-      gram: {
-        "그램린": ["/object images/gram/그램린_1.png"],
-        "루나": ["/object images/gram/루나_1.png", "/object images/gram/루나_2.png", "/object images/gram/루나_3.png"],
-        "픽셀": ["/object images/gram/픽셀_1.png", "/object images/gram/픽셀_2.png"],
-        "그램그램": ["/object images/gram/그램그램_1.png", "/object images/gram/그램그램_2.png", "/object images/gram/그램그램_3.png"],
-        "래미": ["/object images/gram/래미_1.png", "/object images/gram/래미_2.png", "/object images/gram/래미_3.png"],
-      },
-    };
-    return imageMap[productGroup]?.[nickname] || [];
-  };
-
-  // nickname에 해당하는 이미지 개수 반환
-  const getImageCountForNickname = (nickname, productGroup) => {
-    return getImagesForNickname(nickname, productGroup).length;
-  };
-
   // 활성화된 카드의 SVG에 따라 배경 색상 결정
   const getBackgroundGradient = () => {
     if (cardSvgs.length === 0 || activeIndex >= cardSvgs.length) {
