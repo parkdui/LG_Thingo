@@ -47,7 +47,12 @@ export default async function handler(req, res) {
       max_tokens: 500,
     });
 
-    const assistantMessage = completion.choices[0]?.message?.content || "응답을 생성할 수 없습니다.";
+    let assistantMessage = completion.choices[0]?.message?.content || "응답을 생성할 수 없습니다.";
+    
+    // 50자 제한 적용
+    if (assistantMessage.length > 50) {
+      assistantMessage = assistantMessage.substring(0, 50);
+    }
 
     return res.status(200).json({
       message: assistantMessage,

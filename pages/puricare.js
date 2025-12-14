@@ -46,6 +46,24 @@ export default function Puricare() {
     "케어케어"
   ];
 
+  // nickname에 해당하는 이미지 파일 경로 배열 반환
+  const getImagesForNickname = (nickname, productGroup) => {
+    const imageMap = {
+      puricare: {
+        "퓨리": ["/object images/puricare/퓨리_1.png"],
+        "에어로": ["/object images/puricare/에어로_1.png"],
+        "브리즈": ["/object images/puricare/브리즈_1.png", "/object images/puricare/브리즈_2.png"],
+        "케어케어": ["/object images/puricare/케어케어_1.png", "/object images/puricare/케어케어_2.png"],
+      },
+    };
+    return imageMap[productGroup]?.[nickname] || [];
+  };
+
+  // nickname에 해당하는 이미지 개수 반환
+  const getImageCountForNickname = (nickname, productGroup) => {
+    return getImagesForNickname(nickname, productGroup).length;
+  };
+
   // 활성화된 카드의 SVG에 따라 배경 색상 결정
   const getBackgroundGradient = () => {
     if (cardSvgs.length === 0 || activeIndex >= cardSvgs.length) {
@@ -217,7 +235,7 @@ export default function Puricare() {
       </Head>
       <div
         style={{
-          padding: "1rem",
+          // padding: "1rem",
           paddingTop: "3rem",
           maxWidth: "100%",
           margin: "0 auto",
@@ -540,23 +558,32 @@ export default function Puricare() {
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
                 WebkitOverflowScrolling: "touch",
+                justifyContent: (() => {
+                  const nickname = nicknames[selectedCardIndex];
+                  const imageCount = getImageCountForNickname(nickname, "puricare");
+                  return imageCount <= 2 ? "center" : "flex-start";
+                })(),
               }}
             >
-              {[1, 2, 3, 4, 5].map((item) => (
-                <div
-                  key={item}
-                  style={{
-                    flexShrink: 0,
-                    width: "120px",
-                    height: "90px",
-                    borderRadius: "12px",
-                    backgroundColor: "#f0f0f0",
-                    backgroundImage: `url('/placeholder-${item}.jpg')`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-              ))}
+              {(() => {
+                const nickname = nicknames[selectedCardIndex];
+                const images = getImagesForNickname(nickname, "puricare");
+                return images.map((imagePath, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      flexShrink: 0,
+                      width: "120px",
+                      height: "90px",
+                      borderRadius: "12px",
+                      backgroundColor: "#f0f0f0",
+                      backgroundImage: `url('${imagePath}')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                ));
+              })()}
             </div>
           </div>
         )}

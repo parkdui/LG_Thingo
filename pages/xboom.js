@@ -48,6 +48,25 @@ export default function Xboom() {
     "스웰"
   ];
 
+  // nickname에 해당하는 이미지 파일 경로 배열 반환
+  const getImagesForNickname = (nickname, productGroup) => {
+    const imageMap = {
+      xboom: {
+        "붐붐이": ["/object images/xboom/붐붐_1.png"], // 파일명은 "붐붐"이지만 nickname은 "붐붐이"
+        "톤톤": ["/object images/xboom/톤톤_1.png"],
+        "바옴바옴": ["/object images/xboom/바옴바옴_1.png", "/object images/xboom/바옴바옴_2.png", "/object images/xboom/바옴바옴_3.png"],
+        "뭅뭅이": ["/object images/xboom/뭅뭅_1.png", "/object images/xboom/뭅뭅_2.png", "/object images/xboom/뭅뭅_3.png"], // 파일명은 "뭅뭅"이지만 nickname은 "뭅뭅이"
+        "스웰": ["/object images/xboom/스웰_1.png", "/object images/xboom/스웰_2.png"],
+      },
+    };
+    return imageMap[productGroup]?.[nickname] || [];
+  };
+
+  // nickname에 해당하는 이미지 개수 반환
+  const getImageCountForNickname = (nickname, productGroup) => {
+    return getImagesForNickname(nickname, productGroup).length;
+  };
+
   // 활성화된 카드의 SVG에 따라 배경 색상 결정
   const getBackgroundGradient = () => {
     if (cardSvgs.length === 0 || activeIndex >= cardSvgs.length) {
@@ -219,7 +238,7 @@ export default function Xboom() {
       </Head>
       <div
         style={{
-          padding: "1rem",
+          // padding: "1rem",
           paddingTop: "3rem",
           maxWidth: "100%",
           margin: "0 auto",
@@ -543,23 +562,32 @@ export default function Xboom() {
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
                 WebkitOverflowScrolling: "touch",
+                justifyContent: (() => {
+                  const nickname = nicknames[selectedCardIndex];
+                  const imageCount = getImageCountForNickname(nickname, "xboom");
+                  return imageCount <= 2 ? "center" : "flex-start";
+                })(),
               }}
             >
-              {[1, 2, 3, 4, 5].map((item) => (
-                <div
-                  key={item}
-                  style={{
-                    flexShrink: 0,
-                    width: "120px",
-                    height: "90px",
-                    borderRadius: "12px",
-                    backgroundColor: "#f0f0f0",
-                    backgroundImage: `url('/placeholder-${item}.jpg')`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-              ))}
+              {(() => {
+                const nickname = nicknames[selectedCardIndex];
+                const images = getImagesForNickname(nickname, "xboom");
+                return images.map((imagePath, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      flexShrink: 0,
+                      width: "120px",
+                      height: "90px",
+                      borderRadius: "12px",
+                      backgroundColor: "#f0f0f0",
+                      backgroundImage: `url('${imagePath}')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                ));
+              })()}
             </div>
           </div>
         )}

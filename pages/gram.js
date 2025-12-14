@@ -44,9 +44,47 @@ export default function Gram() {
     "그램린",
     "루나",
     "픽셀",
-    "그랭그랭",
+    "그램그램",
     "래미"
   ];
+
+  // nickname에 해당하는 이미지 파일 경로 배열 반환
+  const getImagesForNickname = (nickname, productGroup) => {
+    const imageMap = {
+      gram: {
+        "그램린": ["/object images/gram/그램린_1.png"],
+        "루나": ["/object images/gram/루나_1.png", "/object images/gram/루나_2.png", "/object images/gram/루나_3.png"],
+        "픽셀": ["/object images/gram/픽셀_1.png", "/object images/gram/픽셀_2.png"],
+        "그램그램": ["/object images/gram/그램그램_1.png", "/object images/gram/그램그램_2.png", "/object images/gram/그램그램_3.png"],
+        "래미": ["/object images/gram/래미_1.png", "/object images/gram/래미_2.png", "/object images/gram/래미_3.png"],
+      },
+    };
+    return imageMap[productGroup]?.[nickname] || [];
+  };
+
+  // nickname에 해당하는 이미지 개수 반환
+  const getImageCountForNickname = (nickname, productGroup) => {
+    return getImagesForNickname(nickname, productGroup).length;
+  };
+
+  // nickname에 해당하는 이미지 파일 경로 배열 반환
+  const getImagesForNickname = (nickname, productGroup) => {
+    const imageMap = {
+      gram: {
+        "그램린": ["/object images/gram/그램린_1.png"],
+        "루나": ["/object images/gram/루나_1.png", "/object images/gram/루나_2.png", "/object images/gram/루나_3.png"],
+        "픽셀": ["/object images/gram/픽셀_1.png", "/object images/gram/픽셀_2.png"],
+        "그램그램": ["/object images/gram/그램그램_1.png", "/object images/gram/그램그램_2.png", "/object images/gram/그램그램_3.png"],
+        "래미": ["/object images/gram/래미_1.png", "/object images/gram/래미_2.png", "/object images/gram/래미_3.png"],
+      },
+    };
+    return imageMap[productGroup]?.[nickname] || [];
+  };
+
+  // nickname에 해당하는 이미지 개수 반환
+  const getImageCountForNickname = (nickname, productGroup) => {
+    return getImagesForNickname(nickname, productGroup).length;
+  };
 
   // 활성화된 카드의 SVG에 따라 배경 색상 결정
   const getBackgroundGradient = () => {
@@ -219,7 +257,7 @@ export default function Gram() {
       </Head>
       <div
         style={{
-          padding: "1rem",
+          // padding: "1rem",
           paddingTop: "3rem",
           maxWidth: "100%",
           margin: "0 auto",
@@ -542,23 +580,32 @@ export default function Gram() {
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
                 WebkitOverflowScrolling: "touch",
+                justifyContent: (() => {
+                  const nickname = nicknames[selectedCardIndex];
+                  const imageCount = getImageCountForNickname(nickname, "gram");
+                  return imageCount <= 2 ? "center" : "flex-start";
+                })(),
               }}
             >
-              {[1, 2, 3, 4, 5].map((item) => (
-                <div
-                  key={item}
-                  style={{
-                    flexShrink: 0,
-                    width: "120px",
-                    height: "90px",
-                    borderRadius: "12px",
-                    backgroundColor: "#f0f0f0",
-                    backgroundImage: `url('/placeholder-${item}.jpg')`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-              ))}
+              {(() => {
+                const nickname = nicknames[selectedCardIndex];
+                const images = getImagesForNickname(nickname, "gram");
+                return images.map((imagePath, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      flexShrink: 0,
+                      width: "120px",
+                      height: "90px",
+                      borderRadius: "12px",
+                      backgroundColor: "#f0f0f0",
+                      backgroundImage: `url('${imagePath}')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                ));
+              })()}
             </div>
           </div>
         )}
