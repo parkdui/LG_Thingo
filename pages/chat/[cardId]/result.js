@@ -66,13 +66,30 @@ export default function ChatResult() {
   const nickname = cardId ? getCardNickname(cardId) : "";
   const productGroup = cardId ? getProductGroup(cardId) : "";
   const videoRef = useRef(null);
+  
+  // 성공/실패에 따른 랜덤 메시지
+  const getSuccessMessage = () => {
+    const messages = [
+      "저, 당신의 집으로 가고 싶어요!",
+      "저, 당신이 마음에 들었어요!"
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+  
+  const getFailureMessage = () => {
+    const messages = [
+      "흠, 저 말고 다른 제품이랑 이야기해보세요.",
+      "음...저와는 잘 맞지 않는 것 같아요. 아쉽네요."
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
 
   // 영상 파일 경로 가져오기
   const getVideoPath = (isSuccess) => {
     if (!productGroup) return null;
     return isSuccess 
-      ? `/videos/${productGroup}_success.mp4`
-      : `/videos/${productGroup}_fail.mp4`;
+      ? `/result videos/${productGroup}/${productGroup}_success.mp4`
+      : `/result videos/${productGroup}/${productGroup}_fail.mp4`;
   };
 
   useEffect(() => {
@@ -88,7 +105,10 @@ export default function ChatResult() {
       <>
         <Head>
           <title>대화 결과 - Thingo</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         </Head>
         <div style={{ 
           minHeight: "100vh", 
@@ -107,16 +127,21 @@ export default function ChatResult() {
     <>
       <Head>
         <title>대화 결과 - Thingo</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="icon" type="image/png" href="/thingo_favicon.png" />
       </Head>
       <div
         style={{
           minHeight: "100vh",
+          minHeight: "-webkit-fill-available",
           width: "100vw",
           position: "relative",
           backgroundColor: "#000",
           overflow: "hidden",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {/* 영상 재생 */}
@@ -125,8 +150,8 @@ export default function ChatResult() {
             ref={videoRef}
             src={getVideoPath(result.isSuccess)}
             autoPlay
-            loop
             muted
+            playsInline
             style={{
               position: "absolute",
               top: 0,
@@ -136,62 +161,148 @@ export default function ChatResult() {
               objectFit: "cover",
               zIndex: 1,
             }}
+            onEnded={() => {
+              // 영상이 끝나면 멈춤
+              if (videoRef.current) {
+                videoRef.current.pause();
+              }
+            }}
           />
         )}
         
         {/* 결과 텍스트 오버레이 (영상 위에 표시) */}
         {result && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: "2rem",
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 2,
-              textAlign: "center",
-              fontFamily: "Pretendard, sans-serif",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              padding: "1.5rem 2rem",
-              borderRadius: "16px",
-              maxWidth: "90%",
-            }}
-          >
-            <h1
+          <>
+            {/* 상단 텍스트들 (성공/실패 공통) */}
+            <div
               style={{
-                fontSize: "24pt",
-                fontWeight: 600,
-                color: "#fff",
-                marginBottom: "0.5rem",
-              }}
-            >
-              {result.isSuccess ? "입양 성공!" : "입양 실패"}
-            </h1>
-            <p
-              style={{
-                fontSize: "14pt",
-                color: "#fff",
-                marginBottom: "1.5rem",
-              }}
-            >
-              {result.message}
-            </p>
-            <button
-              onClick={() => router.back()}
-              style={{
-                padding: "14px 28px",
-                borderRadius: "14px",
-                background: "linear-gradient(91deg, #C4F434 -2.42%, #D8F69D 50.99%, #C4F434 104.41%)",
-                border: "none",
-                cursor: "pointer",
+                position: "absolute",
+                top: "20%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 2,
+                textAlign: "center",
                 fontFamily: "Pretendard, sans-serif",
-                fontSize: "12pt",
-                fontWeight: 600,
-                color: "#000",
+                width: "100%",
+                padding: "0 1rem",
               }}
             >
-              돌아가기
-            </button>
-          </div>
+              <p
+                style={{
+                  fontSize: "clamp(10pt, 3vw, 12pt)",
+                  color: "#fff",
+                  marginBottom: "0.5rem",
+                  fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+                }}
+              >
+                대화를 마쳤어요!
+              </p>
+              <p
+                style={{
+                  fontSize: "clamp(14pt, 4vw, 16pt)",
+                  fontWeight: 600,
+                  color: "#fff",
+                  fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+                  marginBottom: "2rem",
+                  padding: "0 1rem",
+                  wordBreak: "keep-all",
+                }}
+              >
+                {result.isSuccess ? getSuccessMessage() : getFailureMessage()}
+              </p>
+            </div>
+
+            {/* 제품 nickname (화면 중앙) */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                zIndex: 2,
+                textAlign: "center",
+                fontFamily: "Pretendard, sans-serif",
+              }}
+            >
+              <div
+                style={{
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "16px",
+                  backgroundColor: "rgba(255, 255, 255, 0.3)",
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                  msBackdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "clamp(12pt, 3.5vw, 14pt)",
+                    fontWeight: 600,
+                    color: "#fff",
+                    fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+                  }}
+                >
+                  {nickname}
+                </span>
+              </div>
+            </div>
+
+            {/* 하단 버튼 영역 */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "2rem",
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 2,
+                textAlign: "center",
+                fontFamily: "Pretendard, sans-serif",
+                width: "calc(100% - 2rem)",
+                maxWidth: "500px",
+                padding: "0 1rem",
+              }}
+            >
+              {result.isSuccess && (
+                <p
+                  style={{
+                    fontSize: "clamp(10pt, 3vw, 12pt)",
+                    color: "#fff",
+                    marginBottom: "1rem",
+                    fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+                    wordBreak: "keep-all",
+                  }}
+                >
+                  책상에 있는 입양 신청서를 작성해보세요
+                </p>
+              )}
+              <button
+                onClick={() => {
+                  // 제품 그룹에 따라 해당 제품 선택 페이지로 이동
+                  if (productGroup) {
+                    router.push(`/${productGroup}`);
+                  } else {
+                    router.back();
+                  }
+                }}
+                style={{
+                  width: "100%",
+                  padding: "14px 28px",
+                  borderRadius: "14px",
+                  background: "linear-gradient(91deg, #C4F434 -2.42%, #D8F69D 50.99%, #C4F434 104.41%)",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "Pretendard, sans-serif",
+                  fontSize: "12pt",
+                  fontWeight: 600,
+                  color: "#000",
+                }}
+              >
+                돌아가기
+              </button>
+            </div>
+          </>
         )}
       </div>
     </>

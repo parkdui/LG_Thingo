@@ -13,6 +13,7 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showTransitionMessage, setShowTransitionMessage] = useState(false);
   const messagesEndRef = useRef(null);
   
   // 제품별 대화 횟수 계산 (user 메시지 개수)
@@ -121,16 +122,36 @@ export default function Chat() {
         throw new Error("응답 형식이 올바르지 않습니다.");
       }
 
-      setMessages([...newMessages, { role: "assistant", content: data.message }]);
+      const finalMessages = [...newMessages, { role: "assistant", content: data.message }];
+      setMessages(finalMessages);
+      
+      // 5번째 질문 후 자동으로 결과 페이지로 전환
+      const newConversationCount = finalMessages.filter(msg => msg.role === "user").length;
+      if (newConversationCount >= MAX_CONVERSATIONS) {
+        setShowTransitionMessage(true);
+        setTimeout(() => {
+          handleTransitionToResult(finalMessages);
+        }, 2000); // 2초 대기
+      }
     } catch (error) {
       console.error("Error:", error);
-      setMessages([
+      const errorMessages = [
         ...newMessages,
         {
           role: "assistant",
           content: error.message || "죄송해요, 오류가 발생했어요. 다시 시도해주세요.",
         },
-      ]);
+      ];
+      setMessages(errorMessages);
+      
+      // 에러가 발생해도 5번째 질문이었다면 결과 페이지로 전환
+      const newConversationCount = errorMessages.filter(msg => msg.role === "user").length;
+      if (newConversationCount >= MAX_CONVERSATIONS) {
+        setShowTransitionMessage(true);
+        setTimeout(() => {
+          handleTransitionToResult(errorMessages);
+        }, 2000); // 2초 대기
+      }
     } finally {
       setIsLoading(false);
     }
@@ -145,6 +166,7 @@ export default function Chat() {
 
   const handleTransitionToResult = (messagesToSave) => {
     setIsTransitioning(true);
+    setShowTransitionMessage(false);
     
     // 1. 말풍선들이 서서히 사라짐 (opacity 애니메이션)
     // 2. 제품 이미지가 상단으로 이동
@@ -191,9 +213,10 @@ export default function Chat() {
             // 5번째 질문 후 자동으로 결과 페이지로 전환
             const newConversationCount = finalMessages.filter(msg => msg.role === "user").length;
             if (newConversationCount >= MAX_CONVERSATIONS) {
+              setShowTransitionMessage(true);
               setTimeout(() => {
                 handleTransitionToResult(finalMessages);
-              }, 1000); // 1초 대기
+              }, 2000); // 2초 대기
             }
           } else {
             throw new Error("응답 형식이 올바르지 않습니다.");
@@ -226,15 +249,20 @@ export default function Chat() {
     <>
       <Head>
         <title>대화하기 - Thingo</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="icon" type="image/png" href="/thingo_favicon.png" />
       </Head>
       <div
         style={{
           minHeight: "100vh",
+          minHeight: "-webkit-fill-available",
           display: "flex",
           flexDirection: "column",
           backgroundColor: "#f5f5f5",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {/* Header */}
@@ -409,14 +437,22 @@ export default function Chat() {
                     maxWidth: "75%",
                     padding: "0.75rem 1rem",
                     borderRadius: "16px",
-                    backgroundColor: msg.role === "user" ? "#C4F434" : "#fff",
+                    backgroundColor: msg.role === "user" 
+                      ? "rgba(196, 244, 52, 0.3)" 
+                      : "rgba(255, 255, 255, 0.3)",
+                    backdropFilter: "blur(10px)",
+                    WebkitBackdropFilter: "blur(10px)",
+                    msBackdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
                     color: msg.role === "user" ? "#000" : "#000",
-                    fontFamily: "Pretendard, sans-serif",
-                    fontSize: "14px",
+                    fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+                    fontSize: "clamp(12px, 3.5vw, 14px)",
                     lineHeight: "1.5",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                    boxShadow: "0 2px 8px 0 rgba(117, 120, 121, 0.16)",
                     position: "relative",
-                    zIndex: 2, // 이미지보다 확실히 위에 표시
+                    zIndex: 2,
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
                   }}
                 >
                   <SplitText
@@ -446,9 +482,16 @@ export default function Chat() {
                 style={{
                   padding: "0.75rem 1rem",
                   borderRadius: "16px",
-                  backgroundColor: "#fff",
-                  fontFamily: "Pretendard, sans-serif",
-                  fontSize: "14px",
+                  backgroundColor: "rgba(255, 255, 255, 0.3)",
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                  msBackdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+                  fontSize: "clamp(12px, 3.5vw, 14px)",
+                  boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+                  color: "#ddd",
+                  WebkitTapHighlightColor: "transparent",
                 }}
               >
                 입력 중...
@@ -477,6 +520,27 @@ export default function Chat() {
               >
                 대화 횟수 제한에 도달했습니다. (최대 {MAX_CONVERSATIONS}번)
               </div>
+            </div>
+          )}
+          {showTransitionMessage && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "0.5rem 1rem",
+                opacity: isTransitioning ? 0 : 1,
+                transition: "opacity 1.5s ease-in",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "Pretendard, sans-serif",
+                  fontSize: "12px",
+                  color: "#666",
+                }}
+              >
+                잠시 후 결과 페이지로 이동합니다
+              </span>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -607,11 +671,13 @@ export default function Chat() {
               padding: "0.75rem 1rem",
               border: "1px solid #e0e0e0",
               borderRadius: "24px",
-              fontSize: "14px",
-              fontFamily: "Pretendard, sans-serif",
+              fontSize: "clamp(14px, 4vw, 16px)",
+              fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
               outline: "none",
               backgroundColor: isLimitReached ? "#f5f5f5" : "#fff",
               color: isLimitReached ? "#999" : "#000",
+              WebkitAppearance: "none",
+              WebkitTapHighlightColor: "transparent",
             }}
           />
           <button

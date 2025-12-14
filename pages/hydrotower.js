@@ -230,7 +230,10 @@ export default function Hydrotower() {
       <Head>
         <title>Hydrotower - Thingo App</title>
         <meta name="description" content="Hydrotower page" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="icon" type="image/png" href="/thingo_favicon.png" />
       </Head>
       <div
@@ -241,6 +244,7 @@ export default function Hydrotower() {
           margin: "0 auto",
           fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
           minHeight: "100vh",
+          minHeight: "-webkit-fill-available",
           textAlign: "center",
           display: "flex",
           flexDirection: "column",
@@ -250,6 +254,7 @@ export default function Hydrotower() {
           transition: "background 0.8s ease-in-out",
           position: "relative",
           overflow: "hidden",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {/* 배경 오버레이 - 부드러운 전환 효과 */}
