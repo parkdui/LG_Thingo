@@ -10,7 +10,8 @@ export default function ChatResult() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!cardId) return;
+    // router.isReady를 체크하여 라우터가 준비될 때까지 기다림
+    if (!router.isReady || !cardId) return;
 
     // 대화 내용을 분석하여 성공/실패 판단
     const analyzeConversation = async () => {
@@ -61,7 +62,7 @@ export default function ChatResult() {
     };
 
     analyzeConversation();
-  }, [cardId]);
+  }, [cardId, router.isReady]);
 
   const nickname = cardId ? getCardNickname(cardId) : "";
   const productGroup = cardId ? getProductGroup(cardId) : "";
@@ -84,12 +85,12 @@ export default function ChatResult() {
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
-  // 영상 파일 경로 가져오기
+  // 영상 파일 경로 가져오기 (공백을 URL 인코딩)
   const getVideoPath = (isSuccess) => {
     if (!productGroup) return null;
-    return isSuccess 
-      ? `/result videos/${productGroup}/${productGroup}_success.mp4`
-      : `/result videos/${productGroup}/${productGroup}_fail.mp4`;
+    const basePath = `/result videos/${productGroup}/${productGroup}_${isSuccess ? 'success' : 'fail'}.mp4`;
+    // encodeURI를 사용하여 전체 경로를 인코딩 (공백 등 특수문자 처리)
+    return encodeURI(basePath);
   };
 
   useEffect(() => {
@@ -99,6 +100,34 @@ export default function ChatResult() {
       });
     }
   }, [result]);
+
+  // router가 준비되지 않았거나 cardId가 없을 때
+  if (!router.isReady || !cardId) {
+    return (
+      <>
+        <Head>
+          <title>대화 결과 - Thingo</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        </Head>
+        <div style={{ 
+          minHeight: "100vh",
+          minHeight: "-webkit-fill-available",
+          width: "100vw",
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center",
+          fontFamily: "Pretendard, sans-serif",
+          backgroundColor: "#000",
+          color: "#fff",
+        }}>
+          <p>로딩 중...</p>
+        </div>
+      </>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -111,11 +140,15 @@ export default function ChatResult() {
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         </Head>
         <div style={{ 
-          minHeight: "100vh", 
+          minHeight: "100vh",
+          minHeight: "-webkit-fill-available",
+          width: "100vw",
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
           fontFamily: "Pretendard, sans-serif",
+          backgroundColor: "#000",
+          color: "#fff",
         }}>
           <p>결과를 분석 중...</p>
         </div>
@@ -152,6 +185,7 @@ export default function ChatResult() {
             autoPlay
             muted
             playsInline
+            loop={false}
             style={{
               position: "absolute",
               top: 0,
@@ -160,6 +194,10 @@ export default function ChatResult() {
               height: "100%",
               objectFit: "cover",
               zIndex: 1,
+            }}
+            onError={(e) => {
+              console.error("Video load error:", e);
+              // 비디오 로드 실패 시에도 계속 진행
             }}
             onEnded={() => {
               // 영상이 끝나면 멈춤
@@ -171,7 +209,7 @@ export default function ChatResult() {
         )}
         
         {/* 결과 텍스트 오버레이 (영상 위에 표시) */}
-        {result && (
+        {result ? (
           <>
             {/* 상단 텍스트들 (성공/실패 공통) */}
             <div
@@ -303,6 +341,21 @@ export default function ChatResult() {
               </button>
             </div>
           </>
+        ) : (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 2,
+              textAlign: "center",
+              fontFamily: "Pretendard, sans-serif",
+              color: "#fff",
+            }}
+          >
+            <p>결과를 불러오는 중...</p>
+          </div>
         )}
       </div>
     </>
