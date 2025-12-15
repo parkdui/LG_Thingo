@@ -85,12 +85,11 @@ export default function ChatResult() {
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
-  // 영상 파일 경로 가져오기 (공백을 URL 인코딩)
+  // 영상 파일 경로 가져오기 (폴더명을 공백 없는 형태로 사용)
   const getVideoPath = (isSuccess) => {
     if (!productGroup) return null;
-    const basePath = `/result videos/${productGroup}/${productGroup}_${isSuccess ? 'success' : 'fail'}.mp4`;
-    // encodeURI를 사용하여 전체 경로를 인코딩 (공백 등 특수문자 처리)
-    return encodeURI(basePath);
+    const basePath = `/result-videos/${productGroup}/${productGroup}_${isSuccess ? 'success' : 'fail'}.mp4`;
+    return basePath;
   };
 
   useEffect(() => {
