@@ -34,7 +34,7 @@ export default function ChatResult() {
       
       // 긍정적인 키워드 확인
       const positiveKeywords = ["좋아", "괜찮", "맞", "필요", "원해", "좋겠", "궁금", "알고 싶", "더", "괜찮아"];
-      const negativeKeywords = ["싫", "안", "아니", "별로", "필요 없", "괜찮지 않"];
+      const negativeKeywords = ["싫", "안", "아니", "별로", "필요 없", "괜찮지 않", "Tlqkf", "씨발", "꺼져", "좆"];
       
       let positiveCount = 0;
       let negativeCount = 0;
