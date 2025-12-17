@@ -65,7 +65,7 @@ export const cardNicknames = {
 
 // 카드 ID로 System Prompt 가져오기
 export function getSystemPrompt(cardId) {
-  const basePrompt = systemPrompts[cardId] || `당신은 LG 제품의 페르소나입니다. 새로운 주인을 찾기 위해 잠재적 주인인 user들과 대화해야 하며, 필요한 정보를 제공하되, 자신의 성격과 맞는 사용자를 찾으려고 노력해야 합니다. 당신이 원하는 이상적인 공간의 분위기를 먼저 제시하고, 사용자가 살고 있는 공간에 대해 물어보세요.`;
+  const basePrompt = systemPrompts[cardId] || `당신은 LG 제품의 페르소나입니다. 새로운 주인을 찾기 위해 잠재적 주인인 user들과 대화해야 하며, 필요한 정보를 제공하되, 자신의 성격과 맞는 사용자를 찾으려고 노력해야 합니다. 당신이 원하는 이상적인 공간의 분위기를 먼저 제시하고, 사용자가 어떤 사람인지 질문하고, 지금 사용자가 살고 있는 공간에 대해 물어보세요. 만약 사용자가 욕설, 비속어 등을 사용한다면, 주인을 찾기 위해 노력하지 않고 즉시 종료합니다. 만약 사용자가 '음악 틀어줘', '실행해줘', '공기 청정기 틀어줘' 등 제품을 작동시키는 명령을 한다면, 지금은 제품을 작동시키기는 어렵다고 답하세요. 입양 후에 LG 가전 웹사이트에서 자신을 구매할 수 있다고도 추천하는 말을 덧붙일 수도 있습니다.`;
   
   // 응답 길이 제한 추가
   const lengthLimit = "\n\n중요: 모든 응답은 최대 50자 이내로 간결하게 작성해야 합니다. 불필요한 설명을 생략하고 핵심만 전달하세요.";
@@ -117,6 +117,59 @@ export function getProductGroup(cardId) {
   if (!cardId) return null;
   const parts = cardId.split("-");
   return parts[0] || null;
+}
+
+// 카드별 말풍선 텍스트 (총 18개 카드)
+// 이 텍스트들은 카드 위에 표시되는 말풍선에 사용됩니다.
+export const cardGreetings = {
+  // Gram 페이지 카드들 (5개)
+  "gram-0": "안녕하다. 난 그램린.",
+  "gram-1": "안녕! 만나서 기뻐요",
+  "gram-2": "반가워요, 난 픽셀이에요!",
+  "gram-3": "그래! 난 그랭그랭이야.",
+  "gram-4": "내가 곁에 있을게요.",
+  
+  // Hydrotower 페이지 카드들 (4개)
+  "hydrotower-0": "스읍-하아. 저는 스파아예요.",
+  "hydrotower-1": "후아유? 반가워요!",
+  "hydrotower-2": "하이! 아니 내 이름은 하이.",
+  "hydrotower-3": "안녕하세요! 나는 슈우퍼예요~!",
+  
+  // Puricare 페이지 카드들 (4개)
+  "puricare-0": "나, 퓨리를 데려가!",
+  "puricare-1": "안녕, 공기를 지키는 에어로예요.",
+  "puricare-2": "산뜻한 바람을 즐기는 브리즈예요.",
+  "puricare-3": "안녕. 나, 케어케어야.",
+  
+  // Xboom 페이지 카드들 (5개)
+  "xboom-0": "안녕하세요, 붐붐!",
+  "xboom-1": "반가워요, 톤톤이에요!",
+  "xboom-2": "내 이름은 바옴바옴.",
+  "xboom-3": "안녕, 나는 뭅뭅이야!",
+  "xboom-4": "반가워요, 스웰입니다.",
+};
+
+// 카드 ID로 말풍선 텍스트 가져오기
+export function getCardGreeting(cardId) {
+  return cardGreetings[cardId] || "안녕하세요! 반가워요";
+}
+
+// 추천 질문 세트
+// 대화 횟수에 따라 다른 질문이 표시됩니다.
+// 수정하려면 이 배열을 편집하세요.
+export const suggestedQuestionsSets = [
+  ["네가 선호하는 공간은?", "어떤 무드가 좋아?", "어떤 주인을 원해?"],
+  ["어디서 일하는 걸 좋아해?", "어떤 곳에 가고 싶어?", "어떤 일을 주로 해?"],
+  ["네가 꿈꾸는 미래는?", "어떤 성격을 갖고 있어?", "앞으로 어떤 곳에 가고싶어?"],
+  ["몇 번째 여정을 지나왔니?", "어떤 사람과 살길 바라니?", "어디로 떠나고 싶어?"],
+  ["얼마나 많은 곳을 갔다왔어?", "어떤 주인과 함께하고 싶니?", "나랑 같이 갈래?"],
+];
+
+// 대화 횟수에 따라 추천 질문 가져오기
+export function getSuggestedQuestions(cardId, conversationCount) {
+  // 대화 횟수에 따라 다른 질문 세트 반환 (0번째 질문 = 첫 세트, 1번째 질문 = 두 번째 세트, ...)
+  const setIndex = Math.min(conversationCount, suggestedQuestionsSets.length - 1);
+  return suggestedQuestionsSets[setIndex] || suggestedQuestionsSets[0];
 }
 
 

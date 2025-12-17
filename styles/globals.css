@@ -3,10 +3,11 @@
   --foreground: #e8e8e8;
 }
 
+/* 다크모드 자동 전환 방지 - 항상 라이트 모드 유지 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #fdfdfd;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #e8e8e8;
   }
 }
 
@@ -23,17 +24,23 @@ body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: transparent;
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   min-height: -webkit-fill-available;
   position: relative;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 * {
@@ -47,16 +54,24 @@ a {
   text-decoration: none;
 }
 
+/* 다크모드 자동 전환 방지 - 항상 라이트 모드 유지 */
 @media (prefers-color-scheme: dark) {
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
+}
+
+/* 강제로 라이트 모드 유지 */
+html {
+  color-scheme: light;
 }
 
 /* Hide scrollbar for horizontal carousel */
 .horizontal-carousel {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+  padding-left: 5rem;
+  padding-right: 5rem;
 }
 
 .horizontal-carousel::-webkit-scrollbar {

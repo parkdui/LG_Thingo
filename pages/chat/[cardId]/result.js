@@ -52,12 +52,18 @@ export default function ChatResult() {
       // 대화 길이와 긍정/부정 비율로 판단
       const isSuccess = userMessages.length >= 2 && positiveCount >= negativeCount;
       
-      setResult({
+      const resultData = {
         isSuccess,
         message: isSuccess 
           ? "입양 성공! 당신과 잘 맞는 제품이에요." 
           : "입양 실패. 다른 제품을 찾아보세요.",
-      });
+      };
+      
+      console.log("Result data:", resultData);
+      console.log("Product group:", productGroup);
+      console.log("Video path:", getVideoPath(resultData.isSuccess));
+      
+      setResult(resultData);
       setIsLoading(false);
     };
 
@@ -67,6 +73,17 @@ export default function ChatResult() {
   const nickname = cardId ? getCardNickname(cardId) : "";
   const productGroup = cardId ? getProductGroup(cardId) : "";
   const videoRef = useRef(null);
+  
+  // 영상 파일 경로 가져오기 (폴더명을 공백 없는 형태로 사용)
+  const getVideoPath = (isSuccess) => {
+    if (!productGroup) {
+      console.warn("Product group not found for cardId:", cardId);
+      return null;
+    }
+    const basePath = `/result-videos/${productGroup}/${productGroup}_${isSuccess ? 'success' : 'fail'}.mp4`;
+    console.log("Video path:", basePath, "isSuccess:", isSuccess);
+    return basePath;
+  };
   
   // 성공/실패에 따른 랜덤 메시지
   const getSuccessMessage = () => {
@@ -83,13 +100,6 @@ export default function ChatResult() {
       "음...저와는 잘 맞지 않는 것 같아요. 아쉽네요."
     ];
     return messages[Math.floor(Math.random() * messages.length)];
-  };
-
-  // 영상 파일 경로 가져오기 (폴더명을 공백 없는 형태로 사용)
-  const getVideoPath = (isSuccess) => {
-    if (!productGroup) return null;
-    const basePath = `/result-videos/${productGroup}/${productGroup}_${isSuccess ? 'success' : 'fail'}.mp4`;
-    return basePath;
   };
 
   useEffect(() => {
@@ -114,7 +124,14 @@ export default function ChatResult() {
         <div style={{ 
           minHeight: "100vh",
           minHeight: "-webkit-fill-available",
+          height: "100vh",
+          height: "-webkit-fill-available",
           width: "100vw",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
@@ -141,7 +158,14 @@ export default function ChatResult() {
         <div style={{ 
           minHeight: "100vh",
           minHeight: "-webkit-fill-available",
+          height: "100vh",
+          height: "-webkit-fill-available",
           width: "100vw",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
@@ -169,15 +193,21 @@ export default function ChatResult() {
         style={{
           minHeight: "100vh",
           minHeight: "-webkit-fill-available",
+          height: "100vh",
+          height: "-webkit-fill-available",
           width: "100vw",
-          position: "relative",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           backgroundColor: "#000",
           overflow: "hidden",
           WebkitOverflowScrolling: "touch",
         }}
       >
         {/* 영상 재생 */}
-        {result && getVideoPath(result.isSuccess) && (
+        {result && (
           <video
             ref={videoRef}
             src={getVideoPath(result.isSuccess)}
@@ -193,10 +223,15 @@ export default function ChatResult() {
               height: "100%",
               objectFit: "cover",
               zIndex: 1,
+              backgroundColor: "#000",
             }}
             onError={(e) => {
               console.error("Video load error:", e);
+              console.error("Failed video path:", getVideoPath(result.isSuccess));
               // 비디오 로드 실패 시에도 계속 진행
+            }}
+            onLoadedData={() => {
+              console.log("Video loaded successfully:", getVideoPath(result.isSuccess));
             }}
             onEnded={() => {
               // 영상이 끝나면 멈춤
@@ -214,7 +249,7 @@ export default function ChatResult() {
             <div
               style={{
                 position: "absolute",
-                top: "20%",
+                top: "10%",
                 left: "50%",
                 transform: "translateX(-50%)",
                 zIndex: 2,

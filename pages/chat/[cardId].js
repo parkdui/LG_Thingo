@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { getCardNickname, getProductGroup, getInitialGreeting } from "@/config/systemPrompts";
+import { getCardNickname, getProductGroup, getInitialGreeting, getSuggestedQuestions } from "@/config/systemPrompts";
 import SplitText from "@/components/SplitText";
 
 const MAX_CONVERSATIONS = 5; // 제품 1개당 최대 대화 횟수
@@ -238,7 +238,9 @@ export default function Chat() {
     }, 0);
   };
 
-  const suggestedQuestions = [
+  // 추천 질문은 대화 횟수에 따라 동적으로 변경됩니다
+  // 수정하려면 config/systemPrompts.js 파일의 suggestedQuestionsSets 객체를 편집하세요
+  const suggestedQuestions = cardId ? getSuggestedQuestions(cardId, conversationCount) : [
     "네가 선호하는 공간은?",
     "어떤 무드가 좋아?",
     "어떤 주인을 원해?",
@@ -257,12 +259,21 @@ export default function Chat() {
       </Head>
       <div
         style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "100vw",
+          height: "100vh",
+          height: "-webkit-fill-available",
           minHeight: "100vh",
           minHeight: "-webkit-fill-available",
           display: "flex",
           flexDirection: "column",
           backgroundColor: "#f5f5f5",
           WebkitOverflowScrolling: "touch",
+          overflow: "hidden",
         }}
       >
         {/* Header */}

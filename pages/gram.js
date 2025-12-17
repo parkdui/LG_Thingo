@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { getCardId } from "@/config/systemPrompts";
+import { getCardId, getCardGreeting } from "@/config/systemPrompts";
 
 export default function Gram() {
   const router = useRouter();
@@ -32,12 +32,14 @@ export default function Gram() {
     setCardSvgs(result);
   }, []);
   
+  // 말풍선 텍스트는 systemPrompts.js의 cardGreetings에서 가져옵니다
+  // 수정하려면 config/systemPrompts.js 파일의 cardGreetings 객체를 편집하세요
   const greetings = [
-    "안녕하세요! 반가워요",
-    "안녕! 만나서 기뻐요",
-    "반갑습니다! 잘 부탁해요",
-    "안녕하세요! 즐거운 하루 되세요",
-    "반가워요! 함께해요"
+    getCardGreeting("gram-0"),
+    getCardGreeting("gram-1"),
+    getCardGreeting("gram-2"),
+    getCardGreeting("gram-3"),
+    getCardGreeting("gram-4"),
   ];
 
   const nicknames = [
@@ -246,6 +248,14 @@ export default function Gram() {
           maxWidth: "100%",
           margin: "0 auto",
           fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "100vw",
+          height: "100vh",
+          height: "-webkit-fill-available",
           minHeight: "100vh",
           minHeight: "-webkit-fill-available",
           textAlign: "center",
@@ -255,7 +265,6 @@ export default function Gram() {
           justifyContent: "flex-start",
           background: getBackgroundGradient(),
           transition: "background 0.8s ease-in-out",
-          position: "relative",
           overflow: "hidden",
           WebkitOverflowScrolling: "touch",
         }}
